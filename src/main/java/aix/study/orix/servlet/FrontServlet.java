@@ -1,17 +1,11 @@
 
 package aix.study.orix.servlet;
 
-import aix.study.orix.ConnectionException;
-import aix.study.orix.HttpResponse;
-import aix.study.orix.RestConnector;
-import aix.study.res.ResourceAppConnector;
 import aix.study.res.ResourceAppException;
 import aix.study.res.ResourceDomain;
 import aix.study.res.ResourceService;
 import aix.study.res.YouTubeDomain;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
@@ -31,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 public class FrontServlet extends HttpServlet {
     
     private static final Logger logger = Logger.getLogger(FrontServlet.class.getName());
-    private ResourceService resourceService;
+    private final ResourceService resourceService;
 
     @Inject
     public FrontServlet(ResourceService resourceService) {

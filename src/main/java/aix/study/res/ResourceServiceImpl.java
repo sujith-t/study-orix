@@ -3,8 +3,8 @@ package aix.study.res;
 import aix.study.orix.ConnectionException;
 import aix.study.orix.HttpResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.DependsOn;
@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.bind.JAXBException;
 import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
 
 /**
  * @author Sujith T
@@ -55,20 +54,54 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public ResourceDomain getResourceByUrlKey(String key) throws ResourceAppException {
         String url = "/resource?key=" + key;
-
+        return this.fetchOneResourceDomain(url);
+    }
+    
+    /**
+     * Add YouTube Content
+     * 
+     * @param domain
+     * @throws aix.study.res.ResourceAppException
+     */      
+    @Override
+    public void addYouTubeContent(YouTubeDomain domain) throws ResourceAppException {
+        ObjectWriter objWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String url = "/resource/utube";
         try {
             Map<String, String> map = new HashMap();
-            map.put("Content-Type", "application/json");
+            map.put("Content-Type", "application/json");            
+            String jsonStr = objWriter.writeValueAsString(domain);
             
-            HttpResponse response = this.resAppConnector.get(url, map);
+            HttpResponse response = this.resAppConnector.post(url, map, jsonStr.getBytes());
             this.throwExceptionIfServerError(response);
-            String jsonStr = IOUtils.toString(response.getResponseStream());
             
-            return jsonToObject(jsonStr);
-            
-        } catch (ConnectionException | IOException | JAXBException ex) {
-            throw new ResourceAppException(ex);
+        } catch (ConnectionException | IOException ex) {
+           throw new ResourceAppException(ex);
         }
+    }
+    
+    /**
+     * Update YouTube Content
+     * 
+     * @param domain
+     * @throws aix.study.res.ResourceAppException
+     */      
+    @Override
+    public void updateYouTubeContent(YouTubeDomain domain) throws ResourceAppException {
+        ObjectWriter objWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String url = "/resource/utube";
+        
+        try {
+            Map<String, String> map = new HashMap();
+            map.put("Content-Type", "application/json");            
+            String jsonStr = objWriter.writeValueAsString(domain);
+            
+            HttpResponse response = this.resAppConnector.put(url, map, jsonStr.getBytes());
+            this.throwExceptionIfServerError(response);
+            
+        } catch (ConnectionException | IOException ex) {
+           throw new ResourceAppException(ex);
+        }        
     }
 
     /**
@@ -94,4 +127,47 @@ public class ResourceServiceImpl implements ResourceService {
             throw new ResourceAppException("HTTP Code:" + response.getHttpCode() + " " + response.getResponseMessage() + " Server Response:" + IOUtils.toString(response.getResponseStream()));
         }        
     }
+    
+    private ResourceDomain fetchOneResourceDomain(String url) throws ResourceAppException {
+        
+        try {
+            Map<String, String> map = new HashMap();
+            map.put("Content-Type", "application/json");            
+
+            HttpResponse response = this.resAppConnector.get(url, map);
+            this.throwExceptionIfServerError(response);
+            String jsonStr = IOUtils.toString(response.getResponseStream());
+            
+            return jsonToObject(jsonStr);            
+            
+        } catch (ConnectionException | JAXBException | IOException ex) {
+           throw new ResourceAppException(ex);
+        }    
+    }
+
+    /**
+     * Returns A UTube Content by URL 
+     * 
+     * @param url
+     * @return YouTubeDomain
+     * @throws aix.study.res.ResourceAppException
+     */     
+    @Override
+    public YouTubeDomain getYouTubeByUrl(String url) throws ResourceAppException {
+        String curlUrl = "/resource/utube?url=" + url;
+        return (YouTubeDomain) this.fetchOneResourceDomain(curlUrl);
+    }
+    
+    /**
+     * Returns A Content By Id 
+     * 
+     * @param id
+     * @return ResourceDomain
+     * @throws aix.study.res.ResourceAppException
+     */     
+    @Override
+    public ResourceDomain getResourceById(String id) throws ResourceAppException { 
+        String curlUrl = "/resource?id=" + id;
+        return this.fetchOneResourceDomain(curlUrl);
+    }    
 }

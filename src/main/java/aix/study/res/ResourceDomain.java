@@ -4,6 +4,7 @@ package aix.study.res;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Sujith T
@@ -21,7 +22,7 @@ public class ResourceDomain {
     protected Date updatedDate;
     protected String resourceType;
     protected String urlKey;
-    protected List<String> tags;
+    protected Set<String> tags;
     
     /**
      * Returns Id
@@ -144,9 +145,9 @@ public class ResourceDomain {
     /**
      * Return Tags
      * 
-     * @return List<String>
+     * @return Set<String>
      */    
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return this.tags;
     }
     
@@ -155,7 +156,7 @@ public class ResourceDomain {
      * 
      * @param tags
      */     
-    public void setTags(List<String> tags) {
+    public void setTags(Set<String> tags) {
         this.tags = tags;
     }    
     
