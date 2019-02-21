@@ -1,7 +1,7 @@
 package aix.study.res;
 
-import aix.study.orix.ConnectionException;
-import aix.study.orix.HttpResponse;
+import aix.study.orix.util.ConnectionException;
+import aix.study.orix.util.HttpResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;

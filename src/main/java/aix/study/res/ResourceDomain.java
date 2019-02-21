@@ -3,7 +3,6 @@ package aix.study.res;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**

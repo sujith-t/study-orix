@@ -1,7 +1,6 @@
 package aix.study.orix.servlet;
 
 import aix.study.res.ResourceService;
-import aix.study.res.YouTubeDomain;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.inject.Inject;

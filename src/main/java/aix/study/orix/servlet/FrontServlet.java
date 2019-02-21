@@ -36,7 +36,7 @@ public class FrontServlet extends HttpServlet {
     /**
      * processing of GET Request
      */
-    private void processGet(HttpServletRequest request, HttpServletResponse response, String param)
+    private void processPage(HttpServletRequest request, HttpServletResponse response, String param)
             throws ServletException, IOException, ResourceAppException {
             
         String url = "/fast/index.xhtml";
@@ -55,10 +55,31 @@ public class FrontServlet extends HttpServlet {
                 }
             }
         }
-
+        
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
         dispatcher.forward(request, response);
     }
+    
+    /**
+     * processing of GET Request
+     */
+    private void processAction(HttpServletRequest request, HttpServletResponse response, String action)
+            throws ServletException, IOException, ResourceAppException {
+        
+        String url = "";
+        
+        /*switch(action) {
+            case "register":
+                url = "/fast/register.xhtml";
+                break;
+            default: 
+                response.sendRedirect("/");             
+                break;
+        }*/
+        
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
+        dispatcher.forward(request, response);        
+    }    
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -72,9 +93,16 @@ public class FrontServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String q = request.getParameter("q");
+        String query = request.getParameter("q");
+        String action = request.getParameter("a");
+        
         try {
-            processGet(request, response, q);
+            if(action != null && !action.trim().equals("")) {
+                processAction(request, response, action.trim());
+            } else {
+                processPage(request, response, query);
+            }        
+            
         } catch (ResourceAppException | ServletException | IOException ex) {
             Logger.getLogger(FrontServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
