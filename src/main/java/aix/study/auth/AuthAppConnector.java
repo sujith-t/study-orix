@@ -2,7 +2,7 @@
 package aix.study.auth;
 
 import aix.study.orix.util.Config;
-import aix.study.orix.util.ConnectionException;
+import aix.study.orix.exception.ConnectionException;
 import aix.study.orix.util.RestConnector;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class AuthAppConnector extends RestConnector {
     /**
      * Constructor
      * 
-     * @throws aix.study.orix.util.ConnectionException
+     * @throws aix.study.orix.exception.ConnectionException
      */    
     public AuthAppConnector() throws ConnectionException {
         

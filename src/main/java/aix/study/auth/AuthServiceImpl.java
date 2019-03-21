@@ -1,22 +1,21 @@
 
 package aix.study.auth;
 
-import aix.study.orix.util.ConnectionException;
+import aix.study.orix.bean.UserIdentity;
+import aix.study.orix.exception.ConnectionException;
+import aix.study.orix.exception.UserIdentityException;
 import aix.study.orix.util.DataCrypto;
 import javax.ejb.DependsOn;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import aix.study.orix.util.HttpResponse;
-import aix.study.orix.util.UtilException;
-import aix.study.res.ResourceAppException;
+import aix.study.orix.exception.UtilException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
@@ -85,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
     private AuthDomain fetchOne(String url, Class clazz) throws AuthAppException {
         
         try {
-            Map<String, String> map = new HashMap();
+            Map<String, String> map = new HashMap<>();
             map.put("Content-Type", "application/json");            
 
             HttpResponse response = this.authConnector.get(url, map);
@@ -94,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
             
             ObjectMapper mapper = new ObjectMapper();
             if(clazz.equals(UserDomain.class)) {
-                return (UserDomain)mapper.readValue(jsonStr, UserDomain.class);
+                return mapper.readValue(jsonStr, UserDomain.class);
             }
             
             return null;
@@ -116,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
         String url = "/auth";
         
         try {
-            Map<String, String> map = new HashMap();
+            Map<String, String> map = new HashMap<>();
             map.put("Content-Type", "application/json");            
             String jsonStr = objWriter.writeValueAsString(domain);
             
@@ -126,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
             JSONObject jsonResp = new JSONObject(IOUtils.toString(response.getResponseStream()));
             String code = jsonResp.getString("code");
             
-            if(!code.equals("AUTH_NO_ERROR")) {
+            if(response.getHttpCode() != HttpsURLConnection.HTTP_OK || !code.equals("AUTH_NO_ERROR")) {
                 throw new AuthAppException("Auth Application error: " + IOUtils.toString(response.getResponseStream()));
             }
         } catch (ConnectionException | IOException ex) {
@@ -137,10 +136,35 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Login a user
      * @param domain
+     * 
+     * @return UserIdentity
      * @throws aix.study.auth.AuthAppException
      */     
     @Override    
-    public void login(UserLoginSessionDomain domain) throws AuthAppException {
-    
+    public UserIdentity login(UserLoginSessionDomain domain) throws AuthAppException {
+        
+        ObjectWriter objWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        HttpResponse response;
+        String url = "/auth/login";
+        
+        try {
+            Map<String, String> map = new HashMap<>();
+            map.put("Content-Type", "application/json");            
+            String jsonStr = objWriter.writeValueAsString(domain);
+            response = this.authConnector.post(url, map, jsonStr.getBytes());
+            
+            if(response.getHttpCode() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                throw new AuthAppException("Auth Application error: " + IOUtils.toString(response.getResponseStream()));
+            }
+            
+            if(response.getHttpCode() == HttpsURLConnection.HTTP_OK) {
+                String token = IOUtils.toString(response.getResponseStream());
+                return new UserIdentity(token);
+            }
+            
+            return null;
+        } catch (ConnectionException | IOException | UserIdentityException ex) {
+           throw new AuthAppException("Registering user failed: ", ex);
+        }
     }
 }

@@ -1,6 +1,8 @@
 
 package aix.study.auth;
 
+import aix.study.orix.bean.UserIdentity;
+
 /**
  * @author Sujith T
  * 
@@ -10,7 +12,7 @@ public interface AuthService {
     
     public void register(UserDomain domain) throws AuthAppException;
     
-    public void login(UserLoginSessionDomain domain) throws AuthAppException;
+    public UserIdentity login(UserLoginSessionDomain domain) throws AuthAppException;
     
     public UserDomain getUserByUsername(String username) throws AuthAppException;
     

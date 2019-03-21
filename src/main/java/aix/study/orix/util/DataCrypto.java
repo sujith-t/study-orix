@@ -1,5 +1,6 @@
 package aix.study.orix.util;
 
+import aix.study.orix.exception.UtilException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

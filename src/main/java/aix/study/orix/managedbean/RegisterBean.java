@@ -4,10 +4,12 @@ package aix.study.orix.managedbean;
 import aix.study.auth.AuthAppException;
 import aix.study.auth.AuthService;
 import aix.study.auth.UserDomain;
-import aix.study.orix.util.ConnectionException;
+import aix.study.auth.UserLoginSessionDomain;
+import aix.study.orix.bean.UserIdentity;
+import aix.study.orix.exception.ConnectionException;
 import aix.study.orix.util.DataCrypto;
 import aix.study.orix.util.RemoteUserRequestInfo;
-import aix.study.orix.util.UtilException;
+import aix.study.orix.exception.UtilException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -19,6 +21,7 @@ import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Sujith T
@@ -30,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 public class RegisterBean {
     
     private RemoteUserRequestInfo info;
+    private HttpSession session;
     
     private String username;
     private String firstName;
@@ -58,6 +62,7 @@ public class RegisterBean {
      */
     public void setRequest(HttpServletRequest request) throws ConnectionException {
         this.info = new RemoteUserRequestInfo(request);
+        this.session = request.getSession(true);
     }
     
     /**
@@ -260,6 +265,24 @@ public class RegisterBean {
             user.setUsername(DataCrypto.encrypt(this.username));
             user.setPassword(DataCrypto.encrypt(this.password));
             this.service.register(user);
+            
+            UserLoginSessionDomain session = new UserLoginSessionDomain();
+            session.setUsername(user.getUsername());
+            session.setPassword(user.getPassword());
+            session.setUserAgent(info.getBrowser());
+            session.setSid(info.getSessionId());
+            session.setRegion(info.getRegion());
+            session.setOrganization(info.getOrganization());
+            session.setLocation(info.getLocation());
+            session.setIpAddress(info.getRemoteIpAddr());
+            session.setCountryCode(info.getCountry());
+            session.setClientOs(info.getClientOs());
+            session.setCity(info.getCity());
+            session.setEmail(user.getEmail());
+            
+            UserIdentity identity = this.service.login(session);
+            this.session.setAttribute("fingerprint", identity);
+            
         } catch (UtilException ex) {
             LOGGER.log(Level.SEVERE, ex.getDescription(), ex);
         } catch(AuthAppException ex) {

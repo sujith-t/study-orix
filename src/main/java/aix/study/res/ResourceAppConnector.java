@@ -2,7 +2,7 @@
 package aix.study.res;
 
 import aix.study.orix.util.Config;
-import aix.study.orix.util.ConnectionException;
+import aix.study.orix.exception.ConnectionException;
 import aix.study.orix.util.RestConnector;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class ResourceAppConnector extends RestConnector {
     /**
      * Constructor
      * 
-     * @throws aix.study.orix.util.ConnectionException
+     * @throws aix.study.orix.exception.ConnectionException
      */    
     public ResourceAppConnector() throws ConnectionException {
         
